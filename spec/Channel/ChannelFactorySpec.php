@@ -36,7 +36,6 @@ class ChannelFactorySpec extends ObjectBehavior
         ConnectionRegistry $connectionRegistry,
         ChannelRegistry $channelRegistry,
         Connection $connection,
-        ChannelRegistry $channelRegistry,
         Identity $identity
     ) {
         $connectionRegistry->getConnection('default')->willReturn($connection);

@@ -110,11 +110,9 @@ class ConsumerFactorySpec extends ObjectBehavior
         ChannelFactory $channelFactory,
         Channel $channel,
         Exchange $exchange,
-        QueueFactory $queueFactory,
         Queue $queue,
         ExchangeRegistry $exchangeRegistry,
-        QueueRegistry $queueRegistry,
-        Queue $queue
+        QueueRegistry $queueRegistry
     ) {
         $connectionRegistry->getConnection('default')->willReturn($connection);
         $channelFactory->createFromConnection($connection, Argument::type(Identity::class))->willReturn($channel);

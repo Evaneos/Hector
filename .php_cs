@@ -1,6 +1,7 @@
 <?php
 
 return Symfony\CS\Config\Config::create()
+    ->setUsingCache(true)
     ->level(Symfony\CS\FixerInterface::SYMFONY_LEVEL)
     ->fixers(array(
         'ordered_use',
