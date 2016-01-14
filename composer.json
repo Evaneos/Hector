@@ -1,0 +1,57 @@
+{
+    "name": "evaneos/hector",
+    "license": "MIT",
+    "description": "AMQP wrapper of php C extension in order to easily manipulate connection, channel, queue and exchange",
+    "type": "symfony-bundle",
+    "keywords": ["AMQP", "wrapper"],
+    "homepage": "https://github.com/evaneos/hector",
+    "support": {
+        "issues": "https://github.com/evaneos/hector/issues",
+        "source": "https://github.com/evaneos/hector"
+    },
+    "authors": [
+        {
+            "name": "Johann Saunier",
+            "email": "saunier.johann@gmail.com",
+            "role": "developer"
+        },
+        {
+            "name": "Evaneos",
+            "email": "dev@evaneos.com",
+            "homepage": "http://www.evaneos.com"
+        }
+    ],
+    "autoload-dev": {
+        "psr-4": {
+            "spec\\Evaneos\\Hector\\": "spec"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Evaneos\\Hector\\": "src"
+        }
+    },
+    "require": {
+        "php": ">=5.5",
+        "ext-amqp": "*",
+        "ramsey/uuid": "^3.0"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^2.3",
+        "symfony/var-dumper": "^3.0",
+        "fabpot/php-cs-fixer": "^1.10",
+        "beberlei/assert": "^2.4"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "scripts":{
+        "test": "bin/phpspec run -n -f dot",
+        "cs": "bin/php-cs-fixer fix"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.1-dev"
+        }
+    }
+}

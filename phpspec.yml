@@ -1,0 +1,5 @@
+formatter.name: pretty
+suites:
+    hector_suite:
+        namespace: Evaneos\Hector
+        psr4_prefix: Evaneos\Hector
