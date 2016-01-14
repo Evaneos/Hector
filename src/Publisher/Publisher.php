@@ -174,7 +174,7 @@ class Publisher
             $this->initialize();
         }
 
-        if(true === $hasEventDispatcher) {
+        if (true === $hasEventDispatcher) {
             $event = new PublisherEvent(
                 $message,
                 $routingKey,
@@ -185,7 +185,7 @@ class Publisher
         }
 
         try {
-            if(true === $hasEventDispatcher){
+            if (true === $hasEventDispatcher) {
                 $this->eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event);
 
                 $result = $this->exchange->getWrappedExchange()->publish(
@@ -194,7 +194,7 @@ class Publisher
                     $event->getFlags(),
                     $event->getAttributes()
                 );
-            }else{
+            } else {
                 $result = $this->exchange->getWrappedExchange()->publish(
                     $message,
                     $routingKey,
@@ -204,16 +204,16 @@ class Publisher
             }
 
             if (!$result) {
-                if(true === $hasEventDispatcher){
+                if (true === $hasEventDispatcher) {
                     $this->eventDispatcher->dispatch(PublisherEvents::FAIL_PUBLISH, new FailedPublisherEvent($event, null, $this));
                 }
             } else {
-                if(true === $hasEventDispatcher){
+                if (true === $hasEventDispatcher) {
                     $this->eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, new SuccessPublisherEvent($event));
                 }
             }
         } catch (\Exception $e) {
-            if(true === $hasEventDispatcher) {
+            if (true === $hasEventDispatcher) {
                 $this->eventDispatcher->dispatch(PublisherEvents::FAIL_PUBLISH, new FailedPublisherEvent($event, $e, $this));
             }
 

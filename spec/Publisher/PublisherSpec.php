@@ -4,7 +4,6 @@ namespace spec\Evaneos\Hector\Publisher;
 
 use Evaneos\Hector\Channel\Channel;
 use Evaneos\Hector\Connection\Connection;
-use Evaneos\Hector\Events\FailedPublisherEvent;
 use Evaneos\Hector\Events\PublisherEvent;
 use Evaneos\Hector\Events\PublisherEvents;
 use Evaneos\Hector\Events\SuccessPublisherEvent;

@@ -61,7 +61,7 @@ class PublisherFactory
     {
         $identity = new Identity();
 
-        if(null === $channel) {
+        if (null === $channel) {
             $channel = $this->channelFactory->createFromConnection($connection, $identity);
         }
 

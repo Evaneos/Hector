@@ -52,7 +52,7 @@ class PublisherFactorySpec extends ObjectBehavior
         $exchangeFactory->createNamed('exchange', $channel)->willReturn($exchange);
         $this->createFromConnection($connection, 'exchange')->shouldReturnAnInstanceOf(Publisher::class);
     }
-    
+
     public function it_should_create_exchange_from_connection_name(
         ConnectionRegistry $connectionRegistry,
         Connection $connection,
