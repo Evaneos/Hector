@@ -42,6 +42,9 @@
         "fabpot/php-cs-fixer": "^1.10",
         "beberlei/assert": "^2.4"
     },
+    "suggest": {
+        "symfony/event-dispatcher": "Hector dispatch some event that you can listen"
+    },
     "config": {
         "bin-dir": "bin"
     },

@@ -2,6 +2,7 @@
 
 namespace Evaneos\Hector\Publisher;
 
+use Evaneos\Hector\Channel\Channel;
 use Evaneos\Hector\Channel\ChannelFactory;
 use Evaneos\Hector\Connection\Connection;
 use Evaneos\Hector\Connection\ConnectionRegistry;
@@ -40,13 +41,12 @@ class PublisherFactory
         ConnectionRegistry $connectionRegistry,
         ExchangeFactory $exchangeFactory,
         ChannelFactory $channelFactory,
-        EventDispatcherInterface $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher = null,
         ExchangeRegistry $exchangeRegistry
     ) {
         $this->connectionRegistry = $connectionRegistry;
         $this->exchangeFactory    = $exchangeFactory;
         $this->channelFactory     = $channelFactory;
-        $this->eventDispatcher    = $eventDispatcher;
         $this->exchangeRegistry   = $exchangeRegistry;
     }
 
@@ -57,11 +57,13 @@ class PublisherFactory
      *
      * @return Publisher
      */
-    public function createFromConnection(Connection $connection, $exchangeName, array $options = [])
+    public function createFromConnection(Connection $connection, $exchangeName, Channel $channel = null, array $options = [])
     {
         $identity = new Identity();
 
-        $channel = $this->channelFactory->createFromConnection($connection, $identity);
+        if(null === $channel) {
+            $channel = $this->channelFactory->createFromConnection($connection, $identity);
+        }
 
         if (!$this->exchangeRegistry->hasExchange($exchangeName, $channel)) {
             $exchange = $this->exchangeFactory->createNamed($exchangeName, $channel);
@@ -88,10 +90,10 @@ class PublisherFactory
      *
      * @return Publisher
      */
-    public function create($connectionName, $exchangeName, array $options = [])
+    public function create($connectionName, $exchangeName, Channel $channel = null, array $options = [])
     {
         $connection = $this->connectionRegistry->getConnection($connectionName);
 
-        return $this->createFromConnection($connection, $exchangeName, $options);
+        return $this->createFromConnection($connection, $exchangeName, $channel, $options);
     }
 }

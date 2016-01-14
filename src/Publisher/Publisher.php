@@ -47,7 +47,7 @@ class Publisher
      */
     public function __construct(
         Identity $identity,
-        EventDispatcherInterface $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher = null,
         Connection $connection,
         Channel $channel,
         Exchange $exchange,
@@ -161,59 +161,61 @@ class Publisher
      * @param null   $routingKeyArgument::type(Publisher::class)
      * @param int    $flags
      * @param array  $attributes
-     * @param bool   $useTransaction
      *
      * @throws \Exception
      *
      * @return bool
      */
-    public function publish($message, $routingKey = null, $flags = AMQP_NOPARAM, array $attributes = [], $useTransaction = true)
+    public function publish($message, $routingKey = null, $flags = AMQP_NOPARAM, array $attributes = [])
     {
+        $hasEventDispatcher = null !== $this->eventDispatcher;
+
         if (!$this->isInitialized()) {
             $this->initialize();
         }
 
-        $event = new PublisherEvent(
-            $message,
-            $routingKey,
-            $flags,
-            $attributes,
-            $this->exchange
-        );
+        if(true === $hasEventDispatcher) {
+            $event = new PublisherEvent(
+                $message,
+                $routingKey,
+                $flags,
+                $attributes,
+                $this->exchange
+            );
+        }
 
         try {
-            if (true === $useTransaction) {
-                $this->startTransaction();
+            if(true === $hasEventDispatcher){
+                $this->eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event);
+
+                $result = $this->exchange->getWrappedExchange()->publish(
+                    $event->getMessage(),
+                    $event->getRoutingKey(),
+                    $event->getFlags(),
+                    $event->getAttributes()
+                );
+            }else{
+                $result = $this->exchange->getWrappedExchange()->publish(
+                    $message,
+                    $routingKey,
+                    $flags,
+                    $attributes
+                );
             }
-
-            $this->eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event);
-
-            $result = $this->exchange->getWrappedExchange()->publish(
-                $event->getMessage(),
-                $event->getRoutingKey(),
-                $event->getFlags(),
-                $event->getAttributes()
-            );
 
             if (!$result) {
-                if (true === $useTransaction) {
-                    $this->rollbackTransaction();
+                if(true === $hasEventDispatcher){
+                    $this->eventDispatcher->dispatch(PublisherEvents::FAIL_PUBLISH, new FailedPublisherEvent($event, null, $this));
                 }
-
-                $this->eventDispatcher->dispatch(PublisherEvents::FAIL_PUBLISH, new FailedPublisherEvent($event, null, $this));
             } else {
-                if (true === $useTransaction) {
-                    $this->commitTransaction();
+                if(true === $hasEventDispatcher){
+                    $this->eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, new SuccessPublisherEvent($event));
                 }
-
-                $this->eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, new SuccessPublisherEvent($event));
             }
         } catch (\Exception $e) {
-            if (true === $useTransaction) {
-                $this->rollbackTransaction();
+            if(true === $hasEventDispatcher) {
+                $this->eventDispatcher->dispatch(PublisherEvents::FAIL_PUBLISH, new FailedPublisherEvent($event, $e, $this));
             }
-
-            $this->eventDispatcher->dispatch(PublisherEvents::FAIL_PUBLISH, new FailedPublisherEvent($event, $e, $this));
 
             throw $e;
         }

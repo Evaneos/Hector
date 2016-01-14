@@ -60,6 +60,10 @@ class Channel
      */
     public function startTransaction()
     {
+        if(!$this->isInitialized()){
+            $this->initialize();
+        }
+
         return $this->channel->startTransaction();
     }
 
@@ -68,6 +72,10 @@ class Channel
      */
     public function commitTransaction()
     {
+        if(!$this->isInitialized()){
+            $this->initialize();
+        }
+
         return $this->channel->commitTransaction();
     }
 
@@ -76,6 +84,10 @@ class Channel
      */
     public function rollbackTransaction()
     {
+        if(!$this->isInitialized()){
+            $this->initialize();
+        }
+
         return $this->channel->rollbackTransaction();
     }
 
@@ -88,6 +100,10 @@ class Channel
      */
     public function transaction(\Closure $closure)
     {
+        if(!$this->isInitialized()){
+            $this->initialize();
+        }
+
         try {
             $this->startTransaction();
 

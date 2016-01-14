@@ -113,7 +113,7 @@ class PublisherSpec extends ObjectBehavior
         $this->transaction($stuff);
     }
 
-    public function it_should_publish_message_without_transaction(
+    public function it_should_publish_message(
         EventDispatcher $eventDispatcher,
         Exchange $exchange,
         Channel $channel,
@@ -147,91 +147,5 @@ class PublisherSpec extends ObjectBehavior
         $eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, $successEvent)->shouldBeCalled();
 
         $this->publish($message, $routingKey, $flags, $attributes, false)->shouldReturn(true);
-    }
-
-    public function it_should_publish_message_and_commit_transaction(
-        EventDispatcher $eventDispatcher,
-        Exchange $exchange,
-        Channel $channel,
-        \AMQPExchange $AMQPExchange,
-        Connection $connection
-    ) {
-        $message    = 'foo.bar';
-        $routingKey = 'baz';
-        $flags      = AMQP_NOPARAM;
-        $attributes = [
-            'x-expires' => 1000,
-        ];
-
-        $event = new PublisherEvent(
-            $message,
-            $routingKey,
-            $flags,
-            $attributes,
-            $exchange->getWrappedObject()
-        );
-
-        $successEvent = new SuccessPublisherEvent($event);
-
-        $connection->connect()->shouldBeCalled();
-        $channel->isInitialized()->willReturn(true);
-        $exchange->isInitialized()->willReturn(true);
-
-        $eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event)->shouldBeCalled();
-        $channel->startTransaction()->shouldBeCalled();
-        $AMQPExchange->publish($message, $routingKey, $flags, $attributes)->willReturn(true);
-        $exchange->getWrappedExchange()->willReturn($AMQPExchange);
-        $channel->commitTransaction()->shouldBeCalled();
-        $eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, $successEvent)->shouldBeCalled();
-
-        $this->publish($message, $routingKey, $flags, $attributes, true)->shouldReturn(true);
-    }
-
-    public function it_should_publish_message_and_rollback_transaction(
-        EventDispatcher $eventDispatcher,
-        Exchange $exchange,
-        Channel $channel,
-        \AMQPExchange $AMQPExchange,
-        Connection $connection
-    ) {
-        $message    = 'foo.bar';
-        $routingKey = 'baz';
-        $flags      = AMQP_NOPARAM;
-        $attributes = [
-            'x-expires' => 1000,
-        ];
-
-        $event = new PublisherEvent(
-            $message,
-            $routingKey,
-            $flags,
-            $attributes,
-            $exchange->getWrappedObject()
-        );
-
-        $connection->connect()->shouldBeCalled();
-        $channel->isInitialized()->willReturn(true);
-        $exchange->isInitialized()->willReturn(true);
-
-        $channel->startTransaction()->shouldBeCalled();
-
-        $eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event)->shouldBeCalled();
-
-        $channel->rollbackTransaction()->shouldBeCalled();
-
-        $failedEvent = new FailedPublisherEvent($event, null, $this->getWrappedObject());
-
-        $eventDispatcher->dispatch(PublisherEvents::FAIL_PUBLISH, $failedEvent)->shouldBeCalled();
-
-        $AMQPExchange->publish(
-            $message,
-            $routingKey,
-            $flags,
-            $attributes
-        )->willReturn(false);
-
-        $exchange->getWrappedExchange()->willReturn($AMQPExchange);
-
-        $this->publish($message, $routingKey, $flags, $attributes, true)->shouldReturn(false);
     }
 }
