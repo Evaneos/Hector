@@ -47,7 +47,8 @@
     },
     "scripts":{
         "test": "bin/phpspec run -n -f dot",
-        "cs": "bin/php-cs-fixer fix"
+        "cs": "bin/php-cs-fixer fix",
+        "cs-test": "bin/php-cs-fixer fix --dry-run --diff"
     },
     "extra": {
         "branch-alias": {
