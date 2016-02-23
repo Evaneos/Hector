@@ -170,6 +170,10 @@ class Publisher
     {
         $hasEventDispatcher = null !== $this->eventDispatcher;
 
+        if(!empty($this->routingKeyPrefix)){
+            $routingKey = $this->routingKeyPrefix . $routingKey;
+        }
+
         if (!$this->isInitialized()) {
             $this->initialize();
         }

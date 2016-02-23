@@ -28,9 +28,7 @@ class PublisherSpec extends ObjectBehavior
             $connection,
             $channel,
             $exchange,
-            [
-                'routing_key_prefix' => 'foo.',
-            ]
+            []
         );
     }
 
@@ -142,6 +140,144 @@ class PublisherSpec extends ObjectBehavior
 
         $eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event)->shouldBeCalled();
         $AMQPExchange->publish($message, $routingKey, $flags, $attributes)->willReturn(true);
+        $exchange->getWrappedExchange()->willReturn($AMQPExchange);
+        $eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, $successEvent)->shouldBeCalled();
+
+        $this->publish($message, $routingKey, $flags, $attributes, false)->shouldReturn(true);
+    }
+
+
+    public function it_should_publish_message_with_routing_key_prefixed(
+        EventDispatcher $eventDispatcher,
+        Exchange $exchange,
+        Channel $channel,
+        \AMQPExchange $AMQPExchange,
+        Connection $connection,
+        Identity $identity
+    ) {
+        $prefixRoutingKey = 'foo.';
+        $this->beConstructedWith(
+            $identity,
+            $eventDispatcher,
+            $connection,
+            $channel,
+            $exchange,
+            [
+                'routing_key_prefix' => $prefixRoutingKey
+            ]
+        );
+
+        $message    = 'foo.bar';
+        $routingKey = 'baz';
+        $flags      = AMQP_NOPARAM;
+        $attributes = [
+            'x-expires' => 1000,
+        ];
+
+        $finalRoutingKey = "foo." . $routingKey;
+        $event = new PublisherEvent(
+            $message,
+            $finalRoutingKey,
+            $flags,
+            $attributes,
+            $exchange->getWrappedObject()
+        );
+
+        $successEvent = new SuccessPublisherEvent($event);
+
+        $connection->connect()->shouldBeCalled();
+        $channel->isInitialized()->willReturn(true);
+        $exchange->isInitialized()->willReturn(true);
+
+        $eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event)->shouldBeCalled();
+        $AMQPExchange->publish($message, $finalRoutingKey, $flags, $attributes)->willReturn(true);
+        $exchange->getWrappedExchange()->willReturn($AMQPExchange);
+        $eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, $successEvent)->shouldBeCalled();
+
+        $this->publish($message, $routingKey, $flags, $attributes, false)->shouldReturn(true);
+    }
+
+    public function it_should_publish_message_with_routing_key_null(
+        EventDispatcher $eventDispatcher,
+        Exchange $exchange,
+        Channel $channel,
+        \AMQPExchange $AMQPExchange,
+        Connection $connection,
+        Identity $identity
+    ) {
+
+        $message    = 'foo.bar';
+        $routingKey = null;
+        $flags      = AMQP_NOPARAM;
+        $attributes = [
+            'x-expires' => 1000,
+        ];
+
+        $event = new PublisherEvent(
+            $message,
+            $routingKey,
+            $flags,
+            $attributes,
+            $exchange->getWrappedObject()
+        );
+
+        $successEvent = new SuccessPublisherEvent($event);
+
+        $connection->connect()->shouldBeCalled();
+        $channel->isInitialized()->willReturn(true);
+        $exchange->isInitialized()->willReturn(true);
+
+        $eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event)->shouldBeCalled();
+        $AMQPExchange->publish($message, $routingKey, $flags, $attributes)->willReturn(true);
+        $exchange->getWrappedExchange()->willReturn($AMQPExchange);
+        $eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, $successEvent)->shouldBeCalled();
+
+        $this->publish($message, $routingKey, $flags, $attributes, false)->shouldReturn(true);
+    }
+
+    public function it_should_publish_message_with_routing_key_prefix_only(
+        EventDispatcher $eventDispatcher,
+        Exchange $exchange,
+        Channel $channel,
+        \AMQPExchange $AMQPExchange,
+        Connection $connection,
+        Identity $identity
+    ) {
+        $prefixRoutingKey = 'foo.';
+        $this->beConstructedWith(
+            $identity,
+            $eventDispatcher,
+            $connection,
+            $channel,
+            $exchange,
+            [
+                'routing_key_prefix' => $prefixRoutingKey
+            ]
+        );
+
+        $message    = 'foo.bar';
+        $routingKey = null;
+        $flags      = AMQP_NOPARAM;
+        $attributes = [
+            'x-expires' => 1000,
+        ];
+
+        $event = new PublisherEvent(
+            $message,
+            $prefixRoutingKey,
+            $flags,
+            $attributes,
+            $exchange->getWrappedObject()
+        );
+
+        $successEvent = new SuccessPublisherEvent($event);
+
+        $connection->connect()->shouldBeCalled();
+        $channel->isInitialized()->willReturn(true);
+        $exchange->isInitialized()->willReturn(true);
+
+        $eventDispatcher->dispatch(PublisherEvents::PRE_PUBLISH, $event)->shouldBeCalled();
+        $AMQPExchange->publish($message, $prefixRoutingKey, $flags, $attributes)->willReturn(true);
         $exchange->getWrappedExchange()->willReturn($AMQPExchange);
         $eventDispatcher->dispatch(PublisherEvents::SUCCESS_PUBLISH, $successEvent)->shouldBeCalled();
 
