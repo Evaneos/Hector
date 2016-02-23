@@ -51,7 +51,7 @@ class Publisher
         Connection $connection,
         Channel $channel,
         Exchange $exchange,
-        array $otpions = []
+        array $options = []
     ) {
         $this->connection      = $connection;
         $this->eventDispatcher = $eventDispatcher;

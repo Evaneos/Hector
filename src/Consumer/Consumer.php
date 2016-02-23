@@ -55,11 +55,11 @@ class Consumer
             $this->channel->initialize();
         }
 
-        if (false === $this->exchange->initialize()) {
+        if (false === $this->exchange->isInitialized()) {
             $this->exchange->initialize();
         }
 
-        if (false === $this->queue->initialize()) {
+        if (false === $this->queue->isInitialized()) {
             $this->queue->initialize();
         }
 
